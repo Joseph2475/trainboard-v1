@@ -68,15 +68,16 @@ final class TrainBoardTests: XCTestCase {
         let board = try frattonBoard()
         let folder = FileManager.default.temporaryDirectory.appendingPathComponent("trainboard-renders")
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-        let sizes = [("small", CGSize(width: 170, height: 170), 6, true),
-                     ("medium", CGSize(width: 364, height: 170), 5, false),
-                     ("large", CGSize(width: 364, height: 382), 15, false)]
+        // widget sizes measured on a MacBook desktop
+        let sizes = [("small", CGSize(width: 160, height: 160), 6, true),
+                     ("medium", CGSize(width: 345, height: 160), 5, false),
+                     ("large", CGSize(width: 345, height: 362), 15, false)]
         for scheme in [ColorScheme.light, .dark] {
             for (name, size, rows, compact) in sizes {
                 let renderer = ImageRenderer(content: BoardView(entry: board, rows: rows, compact: compact)
-                    .padding(18)
+                    .padding(.horizontal, 10).padding(.vertical, 14)  // same margins as the widget
                     .frame(width: size.width, height: size.height)
-                    .background(scheme == .dark ? Color.black : Color(red: 0.97, green: 0.95, blue: 0.90))
+                    .background(scheme == .dark ? Color(white: 0.15) : .white)
                     .environment(\.colorScheme, scheme))
                 renderer.scale = 2
                 let image = try XCTUnwrap(renderer.cgImage)

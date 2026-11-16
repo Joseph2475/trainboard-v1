@@ -116,8 +116,7 @@ struct TrackTrainSections: View {
 
     private func track(_ train: DirectTrain) {
         guard let from, let to else { return }
-        onTrack(TrackedTrain(uid: train.train.uid, from: from, to: to,
-                             departs: train.departs.scheduled, arrives: train.arrives.scheduled))
+        onTrack(TrackedTrain(train, from: from, to: to))
     }
 }
 
@@ -169,13 +168,18 @@ struct TrackedTrainSection: View {
             LabeledContent("Due at \(train.to.name)", value: ukClock(train.arrives))
             if let board {
                 BoardView(entry: board, rows: 6)
-                    .padding(12)
-                    .frame(height: 170)
-                    .background(.black, in: RoundedRectangle(cornerRadius: 12))
-                    .environment(\.colorScheme, .dark)
+                    .padding(.vertical, 8)
+                    .frame(height: 160)
             }
             Button("Stop tracking", role: .destructive, action: onStop)
         }
-        .task { board = await BoardEntry.load(train.to) }
+        // refresh each minute, and stop tracking once the board has let the train go after it arrives
+        .task {
+            while !Task.isCancelled {
+                board = await BoardEntry.load(train.to)
+                if board?.showsTracked == false { return onStop() }
+                try? await Task.sleep(for: .seconds(60))
+            }
+        }
     }
 }

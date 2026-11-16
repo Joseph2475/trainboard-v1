@@ -1,27 +1,17 @@
 import SwiftUI
 import WidgetKit
 
-/// How a board looks in full colour. The system's own glass and tinted modes apply on top of either.
-enum BoardStyle: String, CaseIterable {
-    case glass  // system text colours, so it sits with Apple's widgets
-    case board  // amber on black like a station screen, brown on paper in light mode
-}
-
-/// A station departure board.
+/// A station departure board, in system colours so it sits with Apple's widgets.
+/// macOS applies its own glass and tinted looks on top (System Settings, Desktop and Dock).
 struct BoardView: View {
     var entry: BoardEntry
     var rows: Int
     var compact = false  // small widget: no platform or expected columns
-    var style = BoardStyle.board
 
-    @Environment(\.colorScheme) private var scheme
-    @Environment(\.widgetRenderingMode) private var renderingMode
-
-    private var amber: Bool { style == .board && renderingMode == .fullColor }
-    private var ink: Color { !amber ? .primary : scheme == .dark ? .orange : Color(red: 0.42, green: 0.27, blue: 0.03) }
-    private var good: Color { amber && scheme == .light ? Color(red: 0, green: 0.5, blue: 0.18) : .green }
+    private let ink = Color.primary
+    private let good = Color.green
+    private let warning = Color.orange
     private var timeWidth: CGFloat { clockIsTwelveHour ? 50 : 36 }  // "11:14 pm" needs more room than "23:14"
-    private var warning: Color { amber && scheme == .dark ? .yellow : .orange }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
@@ -60,6 +50,7 @@ struct BoardView: View {
             Text(ukClock(entry.date)).opacity(0.6)
         }
         .font(.system(.caption, design: .monospaced).bold())
+        .padding(.horizontal, 3)  // lines up with the text inside the rows
     }
 
     private var columnTitles: some View {

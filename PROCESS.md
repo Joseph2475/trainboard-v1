@@ -98,3 +98,17 @@ I'd already had a departure widget on my desktop for a while. It works, but it d
 ### 16. When the train gets in
 - **Asked:** what happens when the train arrives? I wanted it to stay for two minutes at most, then go.
 - **AI:** before, the arrival banner stayed until an hour after the scheduled arrival. Now it leaves the board two minutes after the train actually gets in, or two minutes after it's expected if there's no live arrival. The saved train still clears itself after three hours, for trains so late the board never sees them arrive.
+
+### 17. Wider rows, and the app lets go too
+- **Pushed back:** the rows were too tight to the sides; there was too much padding.
+- **AI:** turned off the system's widget margins and set narrower ones, so rows run nearly edge to edge. It also measured the real widget size from my desktop captures, so the test renders now match what's on screen.
+- **Asked:** the app should stop tracking after the train arrives too, not just the widget.
+- **AI:** the app now checks the train every minute while it's open, and stops tracking once the board has let it go.
+
+### 18. No style option, track from the widget
+- **Pushed back:** I'd only wanted to check a style choice was possible. macOS already lets people pick full colour, glass or tinted widgets in System Settings, so the widget doesn't need its own Style option. The Edit panel should just be the station.
+- **AI:** removed the Style option and the amber station-board look, so the board uses system colours and macOS applies its own looks on top.
+- **Asked:** people should be able to track a train by right-clicking the widget.
+- **AI:** right-click, Edit "TrainBoard" now has "Track a train from" and "Train" under Station. Pick where the train is coming from and it lists today's direct trains to the widget's station. A train picked there beats one tracked from the app. It kept the macOS menu wording, since that comes from the system.
+
+![Wider, system colours](docs/versions/widget-6-wider-system-colours.png)
