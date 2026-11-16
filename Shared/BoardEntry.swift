@@ -9,6 +9,7 @@ struct BoardEntry: TimelineEntry {
     var tracked: TrackedTrain? = nil
     var trackedLive: DirectTrain? = nil
     var failed = false
+    var style = BoardStyle.board
 
     var trackedArrivesHere: Bool { tracked?.to.code == station.code }
 

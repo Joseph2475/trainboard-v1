@@ -21,8 +21,16 @@ struct WidgetBoard: View {
     @Environment(\.colorScheme) private var scheme
 
     var body: some View {
-        BoardView(entry: entry, rows: family == .systemLarge ? 17 : 6, compact: family == .systemSmall)
-            .containerBackground(scheme == .dark ? Color.black : Color(red: 0.97, green: 0.95, blue: 0.90), for: .widget)
+        BoardView(entry: entry, rows: family == .systemLarge ? 15 : 5, compact: family == .systemSmall, style: entry.style)
+            .padding(4)  // keeps the header clear of the rounded corners
+            .containerBackground(for: .widget) { background }
+    }
+
+    @ViewBuilder private var background: some View {
+        switch entry.style {
+        case .glass: Rectangle().fill(.ultraThinMaterial)
+        case .board: scheme == .dark ? Color.black : Color(red: 0.97, green: 0.95, blue: 0.90)
+        }
     }
 }
 
@@ -34,11 +42,11 @@ struct Provider: AppIntentTimelineProvider {
     }
 
     func snapshot(for config: PickStation, in context: Context) async -> BoardEntry {
-        await BoardEntry.load(station(for: config))
+        await load(config)
     }
 
     func timeline(for config: PickStation, in context: Context) async -> Timeline<BoardEntry> {
-        let entry = await BoardEntry.load(station(for: config))
+        let entry = await load(config)
         // one fetch, then an entry each minute so the clock ticks and departed trains drop off;
         // macOS lets a widget refetch roughly every 5 minutes
         let nextMinute = Calendar.current.nextDate(after: .now, matching: DateComponents(second: 0),
@@ -48,8 +56,10 @@ struct Provider: AppIntentTimelineProvider {
     }
 
     /// An unset widget shows wherever the tracked train is heading, else Fratton.
-    private func station(for config: PickStation) -> Station {
-        config.station?.station ?? TrackedTrain.current?.to ?? .fratton
+    private func load(_ config: PickStation) async -> BoardEntry {
+        var entry = await BoardEntry.load(config.station?.station ?? TrackedTrain.current?.to ?? .fratton)
+        entry.style = config.style
+        return entry
     }
 }
 
@@ -57,10 +67,21 @@ struct Provider: AppIntentTimelineProvider {
 
 struct PickStation: WidgetConfigurationIntent {
     static let title: LocalizedStringResource = "Station"
-    static let description = IntentDescription("Choose which station this board shows.")
+    static let description = IntentDescription("Choose the station and how the board looks.")
 
     @Parameter(title: "Station")
     var station: StationEntity?
+
+    @Parameter(title: "Style", default: .glass)
+    var style: BoardStyle
+}
+
+extension BoardStyle: AppEnum {
+    static let typeDisplayRepresentation: TypeDisplayRepresentation = "Style"
+    static let caseDisplayRepresentations: [BoardStyle: DisplayRepresentation] = [
+        .glass: "Glass",
+        .board: "Station board",
+    ]
 }
 
 struct StationEntity: AppEntity {

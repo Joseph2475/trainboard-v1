@@ -14,19 +14,20 @@ struct ContentView: View {
     @State private var tracked = TrackedTrain.current
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("TrainBoard").font(.title2.bold())
-            Text("Right-click the desktop, choose Edit Widgets and add a TrainBoard. Right-click a widget and choose Edit to pick its station.")
-                .foregroundStyle(.secondary)
-            Divider()
+        Form {
             if let tracked {
-                TrackedTrainCard(train: tracked) { save(nil) }
+                TrackedTrainSection(train: tracked) { save(nil) }
             } else {
-                TrackTrainForm { save($0) }
+                TrackTrainSections { save($0) }
+            }
+            Section {} footer: {
+                Text("To add a board, right-click the desktop, choose Edit Widgets and add TrainBoard.")
             }
         }
-        .padding(24)
-        .frame(width: 420)
+        .formStyle(.grouped)
+        .frame(width: 440)
+        .fixedSize(horizontal: false, vertical: true)  // window fits the form, no empty space below
+        .scrollDisabled(true)  // so nothing to scroll and no scroll bar
     }
 
     private func save(_ train: TrackedTrain?) {
@@ -37,48 +38,77 @@ struct ContentView: View {
 
 // MARK: - Picking a train to track
 
-struct TrackTrainForm: View {
+struct TrackTrainSections: View {
     var onTrack: (TrackedTrain) -> Void
+
+    enum When: String, CaseIterable {
+        case leave = "Leave after"
+        case arrive = "Arrive by"
+    }
 
     @State private var from: Station?
     @State private var to: Station? = .fratton
-    @State private var time = ""
+    @State private var when = When.leave
+    @State private var time: Date?  // nil means now
     @State private var trains: [DirectTrain] = []
     @State private var message: String?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Track a train").font(.headline)
+        Section("Track a train") {
             StationField(label: "From", station: $from)
             StationField(label: "To", station: $to)
-            HStack {
-                TextField("Leaves at, e.g. 12:50 (blank for now)", text: $time)
-                Button("Find trains") { Task { await search() } }
-                    .disabled(from == nil || to == nil)
-                    .keyboardShortcut(.defaultAction)
+            Picker("When", selection: $when) {
+                ForEach(When.allCases, id: \.self) { Text($0.rawValue) }
             }
+            .pickerStyle(.segmented)
+            Picker("Time", selection: $time) {
+                Text("Now").tag(Date?.none)
+                ForEach(quarterHoursLeftToday, id: \.self) { Text(ukClock($0)).tag(Date?.some($0)) }
+            }
+            // search again whenever anything above changes (on a row that's always there)
+            .task(id: "\(from?.code ?? "")\(to?.code ?? "")\(when)\(time.map(ukClock) ?? "now")") { await search() }
+        }
+        Section {
             if let message {
-                Text(message).font(.callout).foregroundStyle(.secondary)
+                Text(message).foregroundStyle(.secondary)
             }
             ForEach(trains, id: \.train.uid) { train in
-                HStack {
-                    Text("\(ukClock(train.departs.scheduled)) to \(ukClock(train.arrives.scheduled))").monospacedDigit()
-                    Text(train.train.headcode ?? "").foregroundStyle(.secondary)
-                    Spacer()
+                LabeledContent {
                     Button("Track") { track(train) }
+                } label: {
+                    Text("\(ukClock(train.departs.scheduled)) to \(ukClock(train.arrives.scheduled))").monospacedDigit()
+                    Text(train.train.headcode ?? "")
                 }
             }
         }
     }
 
+    // shortcut: today only, because the API only searches today's trains; add dates once it takes one
+    private var quarterHoursLeftToday: [Date] {
+        let uk = Trainiac.ukCalendar
+        let midnight = uk.date(byAdding: .day, value: 1, to: uk.startOfDay(for: .now))!
+        let nextQuarter = Date(timeIntervalSinceReferenceDate: (Date.now.timeIntervalSinceReferenceDate / 900).rounded(.up) * 900)
+        return Array(stride(from: nextQuarter, to: midnight, by: 900))
+    }
+
     private func search() async {
-        guard let from, let to else { return }
-        message = "Searching..."
         trains = []
+        guard let from, let to else { message = "Pick both stations to see trains."; return }
+        message = "Searching..."
         do {
-            trains = try await Trainiac.directTrains(from: from.code, to: to.code,
-                                                     leavingFrom: time.trimmingCharacters(in: .whitespaces))
-            message = trains.isEmpty ? "No direct trains found today." : nil
+            switch when {
+            case .leave:
+                trains = try await Trainiac.directTrains(from: from.code, to: to.code, leavingFrom: time.map(ukClock))
+                message = trains.isEmpty ? "No direct trains left today." : nil
+            case .arrive:
+                // the API filters on departure, so search the three hours before and keep trains in on time
+                let deadline = time ?? .now
+                let earliest = max(deadline.addingTimeInterval(-3 * 3600), Trainiac.ukCalendar.startOfDay(for: deadline))
+                let candidates = try await Trainiac.directTrains(from: from.code, to: to.code, leavingFrom: ukClock(earliest),
+                                                                 leavingBy: ukClock(deadline), limit: 20)
+                trains = Array(candidates.filter { $0.arrives.scheduled <= deadline }.suffix(6))
+                message = trains.isEmpty ? "No direct trains get in by then." : nil
+            }
         } catch {
             message = "Couldn't search: \(error.localizedDescription)"
         }
@@ -91,7 +121,7 @@ struct TrackTrainForm: View {
     }
 }
 
-/// Type part of a name, then pick the station from the matches.
+/// A search field that suggests stations as you type; picking one sets the station.
 struct StationField: View {
     var label: String
     @Binding var station: Station?
@@ -100,49 +130,51 @@ struct StationField: View {
     @State private var matches: [Station] = []
 
     var body: some View {
-        if let station {
-            HStack {
-                Text("\(label): \(station.name)")
-                Spacer()
-                Button("Change") { self.station = nil }
+        TextField(label, text: $text, prompt: Text("Search stations"))
+            .textInputSuggestions(matches, id: \.code) { match in
+                Text(match.name).textInputCompletion(match.name)
             }
-        } else {
-            VStack(alignment: .leading, spacing: 4) {
-                TextField(label, text: $text)
-                    .task(id: text) {
-                        try? await Task.sleep(for: .milliseconds(250))  // let typing settle before searching
-                        guard !Task.isCancelled else { return }
-                        matches = (try? await Trainiac.stations(matching: text)) ?? []
-                    }
-                ForEach(matches.prefix(5), id: \.code) { match in
-                    Button("\(match.name) (\(match.code))") { station = match }
-                        .buttonStyle(.link)
+            .onAppear { text = station?.name ?? "" }
+            .task(id: text) {
+                guard text != station?.name else { return }
+                if let picked = matches.first(where: named(text)) {  // a suggestion was picked
+                    station = picked
+                    matches = []
+                    return
                 }
+                station = nil
+                try? await Task.sleep(for: .milliseconds(250))  // let typing settle before searching
+                guard !Task.isCancelled else { return }
+                matches = (try? await Trainiac.stations(matching: text)) ?? []
+                station = matches.first(where: named(text))  // the full name was typed
             }
-        }
+    }
+
+    private func named(_ text: String) -> (Station) -> Bool {
+        { $0.name.localizedCaseInsensitiveCompare(text) == .orderedSame }
     }
 }
 
 // MARK: - The train being tracked
 
-struct TrackedTrainCard: View {
+struct TrackedTrainSection: View {
     var train: TrackedTrain
     var onStop: () -> Void
 
     @State private var board: BoardEntry?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Tracking the \(ukClock(train.departs)) from \(train.from.name)").font(.headline)
-            Text("Due at \(train.to.name) at \(ukClock(train.arrives)). Your \(train.to.name) widgets pick it out.")
-                .foregroundStyle(.secondary)
+        Section("Tracking") {
+            LabeledContent("Train", value: "\(ukClock(train.departs)) from \(train.from.name)")
+            LabeledContent("Due at \(train.to.name)", value: ukClock(train.arrives))
             if let board {
                 BoardView(entry: board, rows: 6)
                     .padding(12)
                     .frame(height: 170)
-                    .background(.background.secondary, in: RoundedRectangle(cornerRadius: 16))
+                    .background(.black, in: RoundedRectangle(cornerRadius: 12))
+                    .environment(\.colorScheme, .dark)
             }
-            Button("Stop tracking", action: onStop)
+            Button("Stop tracking", role: .destructive, action: onStop)
         }
         .task { board = await BoardEntry.load(train.to) }
     }

@@ -53,3 +53,34 @@ I'd already had a departure widget on my desktop for a while. It works, but it d
 - **Asked:** make the code really clear, use the traini.ac API, and stick to what it covers.
 - **AI:** split the code into small files (API client, tracked train, board data, board view, widget, app), and added six tests that run on saved API answers and render every widget size to check the layout.
 - **AI:** spotted in the renders that a late train sat below later ones, because the API orders by expected time. Station screens order by the timetable, so the board now does too.
+
+### 10. "This is horrific UI"
+- **Pushed back:** I marked up the first app window and said it wasn't intuitive. I wanted a proper place to search a From station and a To station, and to pick a time rather than type one. I asked it to use Apple's built-in controls and write as little code as possible.
+- **AI:** rebuilt the window as a standard macOS settings-style form. Both stations are search fields that suggest stations as you type, and the time became a picker.
+
+![First window, marked up](docs/versions/app-1-first-window.png)
+![Native form](docs/versions/app-2-native-form.png)
+![Station suggestions](docs/versions/app-3-station-suggestions.png)
+
+### 11. No date picker, for now
+- **Asked:** add a date picker as well.
+- **AI pushed back:** it tested the API first and found journey searches only cover today (it ignored the date it was sent). A date picker would offer days the app can't search, so it left the date out and noted it in the code as a known limit.
+- **Decided:** time only until the API takes a date.
+
+### 12. Leave after or arrive by
+- **Pushed back:** the time control looked ugly, there was a big empty gap under the form, and I wanted to choose between leaving after a time and arriving by one, as a pill switch.
+- **AI:** added a Leave after / Arrive by switch, swapped the time field for a menu of times left today, and sized the window to fit the form. The API only filters on departure time, so "arrive by" searches the three hours before and keeps the trains that get in on time.
+- **AI:** while testing, it found that typing a station's full name didn't count as picking it, and fixed that.
+- **Pushed back:** a scroll bar was still showing on a window with nothing to scroll. It's gone.
+
+![Leave after or arrive by](docs/versions/app-4-leave-or-arrive.png)
+![Picking a train](docs/versions/app-5-picking-a-train.png)
+
+### 13. Glass, and room to breathe
+- **Pushed back:** on my desktop the board felt cramped, with the station name and clock jammed into the corners. I liked how it looked in macOS's glass mode (when a window is in front), but in full colour the amber board didn't sit well next to Apple's widgets. I wanted a choice of looks.
+- **AI:** added padding, cut the medium board to five rows, and gave each widget a Style option, Glass or Station board. Both work with the system's own glass and tinted modes, with the tracked train picked out in the accent colour.
+
+![First widget render](docs/versions/widget-1-first-render.png)
+![On the desktop, full colour](docs/versions/widget-2-desktop-full-colour.png)
+![On the desktop, glass](docs/versions/widget-3-desktop-glass.png)
+![Padded](docs/versions/widget-4-padded.png)

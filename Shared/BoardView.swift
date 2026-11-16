@@ -1,16 +1,26 @@
 import SwiftUI
+import WidgetKit
 
-/// A station departure board: amber on black in dark mode, brown ink on paper in light.
+/// How a board looks in full colour. The system's own glass and tinted modes apply on top of either.
+enum BoardStyle: String, CaseIterable {
+    case glass  // system text colours, so it sits with Apple's widgets
+    case board  // amber on black like a station screen, brown on paper in light mode
+}
+
+/// A station departure board.
 struct BoardView: View {
     var entry: BoardEntry
     var rows: Int
     var compact = false  // small widget: no platform or expected columns
+    var style = BoardStyle.board
 
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.widgetRenderingMode) private var renderingMode
 
-    private var ink: Color { scheme == .dark ? .orange : Color(red: 0.42, green: 0.27, blue: 0.03) }
-    private var good: Color { scheme == .dark ? .green : Color(red: 0, green: 0.5, blue: 0.18) }
-    private var warning: Color { scheme == .dark ? .yellow : .orange }
+    private var amber: Bool { style == .board && renderingMode == .fullColor }
+    private var ink: Color { !amber ? .primary : scheme == .dark ? .orange : Color(red: 0.42, green: 0.27, blue: 0.03) }
+    private var good: Color { amber && scheme == .light ? Color(red: 0, green: 0.5, blue: 0.18) : .green }
+    private var warning: Color { amber && scheme == .dark ? .yellow : .orange }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
@@ -68,7 +78,7 @@ struct BoardView: View {
                 .foregroundStyle(compact ? color(status) : ink)
                 .frame(width: 36, alignment: .leading)
             HStack(spacing: 3) {
-                if tracked { Image(systemName: "pin.fill").font(.system(size: 8)) }
+                if tracked { Image(systemName: "pin.fill").font(.system(size: 8)).widgetAccentable() }
                 Text(departure.destination.name).truncationMode(.tail)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -90,7 +100,7 @@ struct BoardView: View {
         let status = arrival?.status ?? .onTime
         let note = arrival?.hasHappened == true ? "arrived" : arrivalNote(status)
         return HStack(spacing: 4) {
-            Image(systemName: "pin.fill").font(.system(size: 8))
+            Image(systemName: "pin.fill").font(.system(size: 8)).widgetAccentable()
             Text(compact ? ukClock(tracked.departs) : "\(ukClock(tracked.departs)) from \(tracked.from.name)")
                 .lineLimit(1).truncationMode(.tail)
             Spacer(minLength: 4)

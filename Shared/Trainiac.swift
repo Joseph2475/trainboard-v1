@@ -4,6 +4,11 @@ import Foundation
 /// Docs: https://traini.ac/developers
 enum Trainiac {
     static let ukTime = TimeZone(identifier: "Europe/London")!
+    static let ukCalendar: Calendar = {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = ukTime
+        return calendar
+    }()
 
     /// The next departures from a station, in timetable order like a station screen.
     static func departures(from crs: String, limit: Int = 20) async throws -> [Departure] {
@@ -26,12 +31,14 @@ enum Trainiac {
         }
     }
 
-    /// Direct trains from one station to another, leaving from a UK clock time ("12:50") or from now.
-    // shortcut: today only (the API's default), add a date parameter if people track trains days ahead
-    static func directTrains(from: String, to: String, leavingFrom time: String? = nil, limit: Int = 8) async throws -> [DirectTrain] {
+    /// Today's direct trains from one station to another, leaving between two UK clock times ("12:50").
+    /// No start means from now; no end means until midnight.
+    static func directTrains(from: String, to: String, leavingFrom start: String? = nil, leavingBy end: String? = nil,
+                             limit: Int = 8) async throws -> [DirectTrain] {
         struct Journey: Decodable { let leg: DirectTrain? }
         var query = ["max_changes": "0", "limit": "\(limit)"]
-        if let time, !time.isEmpty { query["from_time"] = time }
+        query["from_time"] = start
+        query["to_time"] = end
         let journeys: [Journey] = try await get("journey/\(from)/\(to)", query)
         return journeys.compactMap(\.leg)
     }

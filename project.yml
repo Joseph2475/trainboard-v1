@@ -2,7 +2,7 @@ name: TrainBoardV1
 options:
   bundleIdPrefix: com.josephmoylan
   deploymentTarget:
-    macOS: "14.0"
+    macOS: "15.0"
 settings:
   base:
     CODE_SIGN_IDENTITY: "Developer ID Application"
