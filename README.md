@@ -2,9 +2,41 @@
 
 A live train departure board for the macOS desktop, built as a WidgetKit widget.
 
-Pin a train a friend is on (say the 12:50 from London Waterloo) and your home station's board picks it out, so you can see when they get in without opening an app.
+Track a train (say the 12:50 from London Waterloo that a friend is on) and your home station's board pins its arrival time at the top and picks it out in the list, so you know when it gets in without opening an app.
 
-UK data from the [traini.ac API](https://traini.ac/developers).
+UK trains, with data from the [traini.ac API](https://traini.ac/developers).
+
+## Build and run
+
+Needs Xcode and [XcodeGen](https://github.com/yonaskolb/XcodeGen).
+
+```sh
+xcodegen generate
+xcodebuild -project TrainBoardV1.xcodeproj -scheme TrainBoardV1 -configuration Release -derivedDataPath build build
+cp -R "build/Build/Products/Release/TrainBoard V1.app" /Applications/
+```
+
+Open the app once, then right-click the desktop, choose Edit Widgets and add a TrainBoard.
+
+## Tests
+
+```sh
+xcodebuild -project TrainBoardV1.xcodeproj -scheme TrainBoardV1 -derivedDataPath build build-for-testing
+xcrun xctest build/Build/Products/Debug/TrainBoardV1Tests.xctest
+```
+
+The tests run on saved API answers in `Tests/Fixtures`, and save a picture of every widget size to a `trainboard-renders` folder in the temp directory.
+
+## Code
+
+| File | What it does |
+|---|---|
+| `Shared/Trainiac.swift` | The API client and the shapes it returns |
+| `Shared/TrackedTrain.swift` | The train being tracked, shared between app and widget |
+| `Shared/BoardEntry.swift` | What one board shows at one moment |
+| `Shared/BoardView.swift` | The board itself |
+| `Widget/TrainBoardWidget.swift` | The widget, its timeline and station picker |
+| `App/TrainBoardApp.swift` | The app window, where you pick a train to track |
 
 ## How this was built
 

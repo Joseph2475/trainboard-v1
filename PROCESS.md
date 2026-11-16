@@ -29,7 +29,27 @@ I'd already had a departure widget on my desktop for a while. It works, but it d
 - **AI:** suggested starting a strict 3 hour clock at the first line of code.
 - **Pushed back:** I kept it loose and put the time into getting the experience right.
 
-### 4. Checking the friend's train idea is possible
-- **Asked:** can the board find a friend's train, like the 12:50 London to Fratton?
+### 4. Checking train tracking is possible
+- **Asked:** can the board find the train a friend is on, like the 12:50 London to Fratton?
 - **AI:** tested the traini.ac API live. The journey lookup (`/v1/journey/WAT/FTN`) returns a train id for each service, and the same id can be matched on the Fratton board, so the widget can highlight that train.
 - **Decided:** build around that match.
+
+### 5. Rebuilding the board
+- **Asked:** rebuild the old widget almost one for one, then add train tracking. Design comes later.
+- **AI:** wrote a new Swift app and widget on the traini.ac API: a departure board in three sizes, a station picker per widget, and a form in the app to track a train.
+
+### 6. The first build showed no trains
+- **AI:** every board said "No trains available". It traced this to trains that have no live id until they start running, so it switched to the timetable id, which every train has. That also fixed tracking a train hours before it leaves, since that train has no live id yet either.
+
+### 7. Questioning the scope
+- **AI:** had added a hidden mode to the app that saved pictures of the widget, so it could check layouts.
+- **Pushed back:** I stopped it and told it to question every part of the request before building. It moved that check into the test suite instead, and dropped the other countries the old widget had.
+
+### 8. A train, not a friend
+- **AI:** had built "friend's train" tracking, with a name field.
+- **Pushed back:** the use case is meeting a friend, but what you track is a train. Renamed it to tracking a train and dropped the name.
+
+### 9. Clean code, UK only
+- **Asked:** make the code really clear, use the traini.ac API, and stick to what it covers.
+- **AI:** split the code into small files (API client, tracked train, board data, board view, widget, app), and added six tests that run on saved API answers and render every widget size to check the layout.
+- **AI:** spotted in the renders that a late train sat below later ones, because the API orders by expected time. Station screens order by the timetable, so the board now does too.
