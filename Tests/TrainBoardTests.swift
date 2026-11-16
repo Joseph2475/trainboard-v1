@@ -41,6 +41,13 @@ final class TrainBoardTests: XCTestCase {
         XCTAssertEqual(TrainTime(scheduled: .now, estimate: .init(type: "delayed_no_estimate", at: nil)).status, .delayed)
     }
 
+    func testTrackedTrainLeavesTheBoardTwoMinutesAfterArriving() throws {
+        let board = try frattonBoard()
+        let arrival = try XCTUnwrap(board.trackedLive?.arrives.expected)
+        XCTAssert(board.at(arrival.addingTimeInterval(60)).showsTracked)
+        XCTAssertFalse(board.at(arrival.addingTimeInterval(3 * 60)).showsTracked)
+    }
+
     func testDepartedTrainsDropOff() throws {
         let board = try frattonBoard()
         let later = board.at(board.departures[2].departs.expected.addingTimeInterval(1))

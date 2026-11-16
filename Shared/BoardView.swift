@@ -27,7 +27,7 @@ struct BoardView: View {
         VStack(alignment: .leading, spacing: 3) {
             header
             Rectangle().fill(ink.opacity(0.4)).frame(height: 1)
-            if entry.trackedArrivesHere, let tracked = entry.tracked {
+            if entry.showsTracked, let tracked = entry.tracked {
                 trackedBanner(tracked)
             }
             if entry.departures.isEmpty {
@@ -36,7 +36,7 @@ struct BoardView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 if !compact { columnTitles }
-                let shown = entry.departures.prefix(entry.trackedArrivesHere ? rows - 1 : rows)
+                let shown = entry.departures.prefix(entry.showsTracked ? rows - 1 : rows)
                 VStack(spacing: 3) {
                     ForEach(Array(shown.enumerated()), id: \.offset) { index, departure in
                         row(departure, striped: index.isMultiple(of: 2) == false)
