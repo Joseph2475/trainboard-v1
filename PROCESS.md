@@ -6,7 +6,13 @@ Tools: Claude Code (Opus) in the terminal for code, API checks and repo setup.
 
 ## The problem
 
-I check my phone several times a day to see when trains at Fratton leave, and more often when a friend is coming down from London and I want to know when to meet them. I've had a departure widget on my desktop for a while; it works, but finding one specific train on it is still guesswork. I wanted to rebuild it from scratch, with a better experience and a clear answer to "when does my friend's train get in?"
+Two things kept annoying me.
+
+**Meeting a friend off a train.** To see when a friend's train gets to my local station, I have to open Trainline, work out the route they've taken and which train they got on, then go through the arrival times stop by stop to find when it reaches my station. It's guesswork.
+
+**Station screens only show the next two trains.** I often work on my laptop at a station or in a coffee shop nearby, where there's no departure screen at all, and the screens that do exist only show the next two trains. I want to see the next five, and know straight away if anything changes.
+
+I'd already had a departure widget on my desktop for a while. It works, but it doesn't solve either of these, so I rebuilt it from scratch around them.
 
 ## Log
 
