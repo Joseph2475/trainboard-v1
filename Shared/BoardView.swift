@@ -46,7 +46,7 @@ struct BoardView: View {
             Text(ukClock(entry.date)).opacity(0.6)
         }
         .font(.system(.caption, design: .monospaced).bold())
-        .padding(.horizontal, 3)  // lines up with the text inside the rows
+        .padding(.horizontal, 8)  // further in than the rows, clear of the widget's rounded top corners
     }
 
     private var columnTitles: some View {
