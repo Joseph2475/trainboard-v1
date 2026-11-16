@@ -20,6 +20,7 @@ struct BoardView: View {
     private var amber: Bool { style == .board && renderingMode == .fullColor }
     private var ink: Color { !amber ? .primary : scheme == .dark ? .orange : Color(red: 0.42, green: 0.27, blue: 0.03) }
     private var good: Color { amber && scheme == .light ? Color(red: 0, green: 0.5, blue: 0.18) : .green }
+    private var timeWidth: CGFloat { clockIsTwelveHour ? 50 : 36 }  // "11:14 pm" needs more room than "23:14"
     private var warning: Color { amber && scheme == .dark ? .yellow : .orange }
 
     var body: some View {
@@ -36,10 +37,14 @@ struct BoardView: View {
             } else {
                 if !compact { columnTitles }
                 let shown = entry.departures.prefix(entry.trackedArrivesHere ? rows - 1 : rows)
-                ForEach(Array(shown.enumerated()), id: \.offset) { index, departure in
-                    row(departure, striped: index.isMultiple(of: 2) == false)
+                VStack(spacing: 3) {
+                    ForEach(Array(shown.enumerated()), id: \.offset) { index, departure in
+                        row(departure, striped: index.isMultiple(of: 2) == false)
+                    }
                 }
-                Spacer(minLength: 0)
+                // if rows run out of room they're cut off at the bottom instead of squashing the header
+                .frame(maxHeight: .infinity, alignment: .top)
+                .clipped()
             }
         }
         .font(.system(size: 10, design: .monospaced))
@@ -59,7 +64,7 @@ struct BoardView: View {
 
     private var columnTitles: some View {
         HStack(spacing: 6) {
-            Text("TIME").frame(width: 36, alignment: .leading)
+            Text("TIME").frame(width: timeWidth, alignment: .leading)
             Text("DESTINATION").frame(maxWidth: .infinity, alignment: .leading)
             Text("PLAT").frame(width: 28)
             Text("EXPECTED").frame(width: 62, alignment: .leading)
@@ -76,7 +81,7 @@ struct BoardView: View {
             // the small widget has no Expected column, so the time carries the status colour
             Text(ukClock(departure.departs.scheduled))
                 .foregroundStyle(compact ? color(status) : ink)
-                .frame(width: 36, alignment: .leading)
+                .frame(width: timeWidth, alignment: .leading)
             HStack(spacing: 3) {
                 if tracked { Image(systemName: "pin.fill").font(.system(size: 8)).widgetAccentable() }
                 Text(departure.destination.name).truncationMode(.tail)
@@ -99,16 +104,16 @@ struct BoardView: View {
         let arrival = entry.trackedLive?.arrives
         let status = arrival?.status ?? .onTime
         let note = arrival?.hasHappened == true ? "arrived" : arrivalNote(status)
-        return HStack(spacing: 4) {
+        return HStack(spacing: 6) {
             Image(systemName: "pin.fill").font(.system(size: 8)).widgetAccentable()
             Text(compact ? ukClock(tracked.departs) : "\(ukClock(tracked.departs)) from \(tracked.from.name)")
                 .lineLimit(1).truncationMode(.tail)
-            Spacer(minLength: 4)
+            Spacer(minLength: 8)
             Text(status == .cancelled ? "--:--" : ukClock(arrival?.expected ?? tracked.arrives)).bold()
-            if !compact { Text(note).foregroundStyle(color(status)) }
+            if !compact { Text(note).foregroundStyle(color(status)).padding(.leading, 4) }
         }
-        .padding(.vertical, 2)
-        .padding(.horizontal, 4)
+        .padding(.vertical, 3)
+        .padding(.horizontal, 6)
         .background(ink.opacity(0.22), in: RoundedRectangle(cornerRadius: 3))
     }
 

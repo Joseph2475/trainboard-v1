@@ -27,7 +27,7 @@ struct TrackedTrain: Codable, Equatable {
 
     /// The same train as the railway sees it now, found again by its timetable id.
     func live() async throws -> DirectTrain? {
-        try await Trainiac.directTrains(from: from.code, to: to.code, leavingFrom: ukClock(departs), limit: 5)
+        try await Trainiac.directTrains(from: from.code, to: to.code, leavingFrom: departs, limit: 5)
             .first { $0.train.uid == uid }
     }
 }

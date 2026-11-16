@@ -84,3 +84,13 @@ I'd already had a departure widget on my desktop for a while. It works, but it d
 ![On the desktop, full colour](docs/versions/widget-2-desktop-full-colour.png)
 ![On the desktop, glass](docs/versions/widget-3-desktop-glass.png)
 ![Padded](docs/versions/widget-4-padded.png)
+
+### 14. A cramped banner
+- **Pushed back:** on the desktop, the tracked train's arrival time and "min late" were jammed together.
+- **AI:** gave the banner more room, and found the real cause while looking: with a train tracked, the board was taller than the widget, so the banner was sliding over the column titles. Rows that don't fit are now cut off at the bottom instead.
+
+![Banner with room](docs/versions/widget-5-banner-spacing.png)
+
+### 15. 12 or 24 hour
+- **Asked:** let people choose a 12 or 24 hour clock.
+- **AI pushed back:** macOS already has that switch (System Settings, General, Date and Time), so rather than adding a second one, every time on the board and in the app now follows the Mac's setting. Times sent to the API stay 24 hour whatever the Mac shows.

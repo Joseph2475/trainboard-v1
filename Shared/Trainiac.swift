@@ -31,14 +31,14 @@ enum Trainiac {
         }
     }
 
-    /// Today's direct trains from one station to another, leaving between two UK clock times ("12:50").
+    /// Today's direct trains from one station to another, leaving between two times.
     /// No start means from now; no end means until midnight.
-    static func directTrains(from: String, to: String, leavingFrom start: String? = nil, leavingBy end: String? = nil,
+    static func directTrains(from: String, to: String, leavingFrom start: Date? = nil, leavingBy end: Date? = nil,
                              limit: Int = 8) async throws -> [DirectTrain] {
         struct Journey: Decodable { let leg: DirectTrain? }
         var query = ["max_changes": "0", "limit": "\(limit)"]
-        query["from_time"] = start
-        query["to_time"] = end
+        query["from_time"] = start.map(apiClock.string)
+        query["to_time"] = end.map(apiClock.string)
         let journeys: [Journey] = try await get("journey/\(from)/\(to)", query)
         return journeys.compactMap(\.leg)
     }
@@ -67,6 +67,15 @@ enum Trainiac {
         }
         return value
     }
+
+    /// The API takes times as 24-hour UK clock times ("12:50"), whatever the Mac shows.
+    private static let apiClock: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_GB_POSIX")
+        formatter.dateFormat = "HH:mm"
+        formatter.timeZone = ukTime
+        return formatter
+    }()
 
     private static let decoder: JSONDecoder = {
         let decoder = JSONDecoder()
@@ -139,12 +148,17 @@ struct DirectTrain: Decodable {
     let arrives: TrainTime
 }
 
-/// "HH:mm" on the UK clock, whatever the Mac's time zone.
+/// Hours and minutes on the UK clock, whatever the Mac's time zone. 12 or 24 hour follows the
+/// Mac's own setting (System Settings, General, Date and Time).
 func ukClock(_ date: Date) -> String { ukClockFormatter.string(from: date) }
+
+/// True when the Mac shows 12-hour time ("11:14 pm"), so time columns can be wider.
+let clockIsTwelveHour = ukClockFormatter.dateFormat.contains("a")
 
 private let ukClockFormatter: DateFormatter = {
     let formatter = DateFormatter()
-    formatter.dateFormat = "HH:mm"
+    formatter.locale = .autoupdatingCurrent
+    formatter.setLocalizedDateFormatFromTemplate("jmm")  // j: the hour style the Mac is set to
     formatter.timeZone = Trainiac.ukTime
     return formatter
 }()
