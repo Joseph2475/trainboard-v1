@@ -132,7 +132,11 @@ struct TrainTime: Decodable {
 }
 
 struct Departure: Decodable {
-    struct Place: Decodable { let name: String }
+    struct Place: Decodable {
+        let name: String
+        let crs: String?
+        var code: String { crs ?? name }  // three-letter code, e.g. PMH
+    }
     struct Platform: Decodable { let number: String? }
 
     let train: Train
