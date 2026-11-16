@@ -98,14 +98,14 @@ struct TrackTrainSections: View {
         do {
             switch when {
             case .leave:
-                trains = try await Trainiac.directTrains(from: from.code, to: to.code, leavingFrom: time.map(ukClock))
+                trains = try await Trainiac.directTrains(from: from.code, to: to.code, leavingFrom: time)
                 message = trains.isEmpty ? "No direct trains left today." : nil
             case .arrive:
                 // the API filters on departure, so search the three hours before and keep trains in on time
                 let deadline = time ?? .now
                 let earliest = max(deadline.addingTimeInterval(-3 * 3600), Trainiac.ukCalendar.startOfDay(for: deadline))
-                let candidates = try await Trainiac.directTrains(from: from.code, to: to.code, leavingFrom: ukClock(earliest),
-                                                                 leavingBy: ukClock(deadline), limit: 20)
+                let candidates = try await Trainiac.directTrains(from: from.code, to: to.code, leavingFrom: earliest,
+                                                                 leavingBy: deadline, limit: 20)
                 trains = Array(candidates.filter { $0.arrives.scheduled <= deadline }.suffix(6))
                 message = trains.isEmpty ? "No direct trains get in by then." : nil
             }

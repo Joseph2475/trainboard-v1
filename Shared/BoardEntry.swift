@@ -13,6 +13,13 @@ struct BoardEntry: TimelineEntry {
 
     var trackedArrivesHere: Bool { tracked?.to.code == station.code }
 
+    /// The tracked train stays on this board until two minutes after it gets in.
+    var showsTracked: Bool {
+        guard trackedArrivesHere, let tracked else { return false }
+        let arrival = trackedLive?.arrives.expected ?? tracked.arrives
+        return date < arrival.addingTimeInterval(2 * 60)
+    }
+
     func isTracked(_ departure: Departure) -> Bool { departure.train.uid == tracked?.uid }
 
     /// The live board for a station, plus the tracked train if it's coming here.

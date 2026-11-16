@@ -17,7 +17,7 @@ struct TrackedTrain: Codable, Equatable {
         get {
             guard let data = store.data(forKey: key),
                   let train = try? JSONDecoder().decode(TrackedTrain.self, from: data) else { return nil }
-            return train.arrives.addingTimeInterval(3600) > .now ? train : nil  // let go an hour after it's due
+            return train.arrives.addingTimeInterval(3 * 3600) > .now ? train : nil  // boards hide it on arrival; this clears it even if very late
         }
         set {
             store.set(try? newValue.map(JSONEncoder().encode), forKey: key)
@@ -27,7 +27,7 @@ struct TrackedTrain: Codable, Equatable {
 
     /// The same train as the railway sees it now, found again by its timetable id.
     func live() async throws -> DirectTrain? {
-        try await Trainiac.directTrains(from: from.code, to: to.code, leavingFrom: ukClock(departs), limit: 5)
+        try await Trainiac.directTrains(from: from.code, to: to.code, leavingFrom: departs, limit: 5)
             .first { $0.train.uid == uid }
     }
 }

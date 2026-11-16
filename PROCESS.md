@@ -84,3 +84,17 @@ I'd already had a departure widget on my desktop for a while. It works, but it d
 ![On the desktop, full colour](docs/versions/widget-2-desktop-full-colour.png)
 ![On the desktop, glass](docs/versions/widget-3-desktop-glass.png)
 ![Padded](docs/versions/widget-4-padded.png)
+
+### 14. A cramped banner
+- **Pushed back:** on the desktop, the tracked train's arrival time and "min late" were jammed together.
+- **AI:** gave the banner more room, and found the real cause while looking: with a train tracked, the board was taller than the widget, so the banner was sliding over the column titles. Rows that don't fit are now cut off at the bottom instead.
+
+![Banner with room](docs/versions/widget-5-banner-spacing.png)
+
+### 15. 12 or 24 hour
+- **Asked:** let people choose a 12 or 24 hour clock.
+- **AI pushed back:** macOS already has that switch (System Settings, General, Date and Time), so rather than adding a second one, every time on the board and in the app now follows the Mac's setting. Times sent to the API stay 24 hour whatever the Mac shows.
+
+### 16. When the train gets in
+- **Asked:** what happens when the train arrives? I wanted it to stay for two minutes at most, then go.
+- **AI:** before, the arrival banner stayed until an hour after the scheduled arrival. Now it leaves the board two minutes after the train actually gets in, or two minutes after it's expected if there's no live arrival. The saved train still clears itself after three hours, for trains so late the board never sees them arrive.

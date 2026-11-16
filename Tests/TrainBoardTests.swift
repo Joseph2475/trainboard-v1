@@ -41,6 +41,13 @@ final class TrainBoardTests: XCTestCase {
         XCTAssertEqual(TrainTime(scheduled: .now, estimate: .init(type: "delayed_no_estimate", at: nil)).status, .delayed)
     }
 
+    func testTrackedTrainLeavesTheBoardTwoMinutesAfterArriving() throws {
+        let board = try frattonBoard()
+        let arrival = try XCTUnwrap(board.trackedLive?.arrives.expected)
+        XCTAssert(board.at(arrival.addingTimeInterval(60)).showsTracked)
+        XCTAssertFalse(board.at(arrival.addingTimeInterval(3 * 60)).showsTracked)
+    }
+
     func testDepartedTrainsDropOff() throws {
         let board = try frattonBoard()
         let later = board.at(board.departures[2].departs.expected.addingTimeInterval(1))
@@ -62,12 +69,12 @@ final class TrainBoardTests: XCTestCase {
         let folder = FileManager.default.temporaryDirectory.appendingPathComponent("trainboard-renders")
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         let sizes = [("small", CGSize(width: 170, height: 170), 6, true),
-                     ("medium", CGSize(width: 364, height: 170), 6, false),
-                     ("large", CGSize(width: 364, height: 382), 17, false)]
+                     ("medium", CGSize(width: 364, height: 170), 5, false),
+                     ("large", CGSize(width: 364, height: 382), 15, false)]
         for scheme in [ColorScheme.light, .dark] {
             for (name, size, rows, compact) in sizes {
                 let renderer = ImageRenderer(content: BoardView(entry: board, rows: rows, compact: compact)
-                    .padding(14)
+                    .padding(18)
                     .frame(width: size.width, height: size.height)
                     .background(scheme == .dark ? Color.black : Color(red: 0.97, green: 0.95, blue: 0.90))
                     .environment(\.colorScheme, scheme))
