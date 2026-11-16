@@ -5,7 +5,6 @@ import WidgetKit
 /// macOS applies its own glass and tinted looks on top (System Settings, Desktop and Dock).
 struct BoardView: View {
     var entry: BoardEntry
-    var rows: Int
     var compact = false  // small widget: three-letter station codes so every column fits
 
     private let ink = Color.primary
@@ -26,14 +25,11 @@ struct BoardView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 if !compact { columnTitles }
-                let shown = entry.departures.prefix(entry.showsTracked ? rows - 1 : rows)
-                VStack(spacing: 3) {
-                    ForEach(Array(shown.enumerated()), id: \.offset) { index, departure in
+                WholeRows(spacing: 3) {
+                    ForEach(Array(entry.departures.enumerated()), id: \.offset) { index, departure in
                         row(departure, striped: index.isMultiple(of: 2) == false)
                     }
                 }
-                // if rows run out of room they're cut off at the bottom instead of squashing the header
-                .frame(maxHeight: .infinity, alignment: .top)
                 .clipped()
             }
         }
@@ -132,6 +128,28 @@ struct BoardView: View {
         case .onTime: good
         case .late, .delayed: warning
         case .cancelled: .red
+        }
+    }
+}
+
+/// Stacks rows from the top and shows as many as fit whole, so a board fills any widget size
+/// without a gap at the bottom or a half-cut row.
+struct WholeRows: Layout {
+    var spacing: CGFloat
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        proposal.replacingUnspecifiedDimensions()  // take all the room offered
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        var y = bounds.minY
+        for row in subviews {
+            let height = row.sizeThatFits(ProposedViewSize(width: bounds.width, height: nil)).height
+            let fits = y + height <= bounds.maxY
+            // rows that don't fit are placed below the bottom edge, where clipping hides them
+            row.place(at: CGPoint(x: bounds.minX, y: fits ? y : bounds.maxY + 1),
+                      proposal: ProposedViewSize(width: bounds.width, height: height))
+            y = fits ? y + height + spacing : .infinity
         }
     }
 }

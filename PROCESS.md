@@ -118,3 +118,9 @@ I'd already had a departure widget on my desktop for a while. It works, but it d
 - **AI:** the small widget now shows time, station code, platform and expected time on every row, and the tracked train banner reads "from WAT" with its arrival time coloured by status.
 
 ![Small widget with station codes](docs/versions/widget-7-small-codes.png)
+
+### 20. Filling the widget
+- **Pushed back:** there was a big empty gap at the bottom of the widget.
+- **AI:** the gap came from each size showing a fixed number of rows. It replaced the fixed counts with a small layout that shows as many whole rows as fit, so every size fills up without cutting a row in half. The row counts are gone from the code.
+
+![Small widget, filled](docs/versions/widget-8-small-filled.png)
