@@ -25,6 +25,14 @@ struct TrackedTrain: Codable, Equatable {
         }
     }
 
+    init(uid: String, from: Station, to: Station, departs: Date, arrives: Date) {
+        (self.uid, self.from, self.to, self.departs, self.arrives) = (uid, from, to, departs, arrives)
+    }
+
+    init(_ train: DirectTrain, from: Station, to: Station) {
+        self.init(uid: train.train.uid, from: from, to: to, departs: train.departs.scheduled, arrives: train.arrives.scheduled)
+    }
+
     /// The same train as the railway sees it now, found again by its timetable id.
     func live() async throws -> DirectTrain? {
         try await Trainiac.directTrains(from: from.code, to: to.code, leavingFrom: departs, limit: 5)

@@ -12,25 +12,19 @@ struct TrainBoardWidget: Widget {
         .configurationDisplayName(String("TrainBoard"))
         .description(String("Live departures, with your tracked train picked out."))
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
+        .contentMarginsDisabled()  // the board sets its own, narrower margins
     }
 }
 
 struct WidgetBoard: View {
     var entry: BoardEntry
     @Environment(\.widgetFamily) private var family
-    @Environment(\.colorScheme) private var scheme
 
     var body: some View {
-        BoardView(entry: entry, rows: family == .systemLarge ? 15 : 5, compact: family == .systemSmall, style: entry.style)
-            .padding(4)  // keeps the header clear of the rounded corners
-            .containerBackground(for: .widget) { background }
-    }
-
-    @ViewBuilder private var background: some View {
-        switch entry.style {
-        case .glass: Rectangle().fill(.ultraThinMaterial)
-        case .board: scheme == .dark ? Color.black : Color(red: 0.97, green: 0.95, blue: 0.90)
-        }
+        BoardView(entry: entry, rows: family == .systemLarge ? 15 : 5, compact: family == .systemSmall)
+            .padding(.horizontal, 10)  // tighter than the system margin so rows run nearly edge to edge
+            .padding(.vertical, 14)  // keeps the header clear of the rounded corners
+            .containerBackground(.background, for: .widget)
     }
 }
 
@@ -55,33 +49,63 @@ struct Provider: AppIntentTimelineProvider {
         return Timeline(entries: [entry] + later, policy: .after(nextMinute.addingTimeInterval(300)))
     }
 
+    /// A train picked in the widget beats one tracked from the app.
     /// An unset widget shows wherever the tracked train is heading, else Fratton.
     private func load(_ config: PickStation) async -> BoardEntry {
-        var entry = await BoardEntry.load(config.station?.station ?? TrackedTrain.current?.to ?? .fratton)
-        entry.style = config.style
-        return entry
+        let tracked = config.train?.train ?? TrackedTrain.current
+        return await BoardEntry.load(config.station?.station ?? tracked?.to ?? .fratton, tracking: tracked)
     }
 }
 
-// MARK: - Choosing a station per widget
+// MARK: - Right-click, Edit: the station, and optionally a train to track
 
 struct PickStation: WidgetConfigurationIntent {
     static let title: LocalizedStringResource = "Station"
-    static let description = IntentDescription("Choose the station and how the board looks.")
+    static let description = IntentDescription("Choose the station, and a train coming to it to track.")
 
     @Parameter(title: "Station")
     var station: StationEntity?
 
-    @Parameter(title: "Style", default: .glass)
-    var style: BoardStyle
+    @Parameter(title: "Track a train from")
+    var trackFrom: StationEntity?
+
+    @Parameter(title: "Train")
+    var train: TrainEntity?
 }
 
-extension BoardStyle: AppEnum {
-    static let typeDisplayRepresentation: TypeDisplayRepresentation = "Style"
-    static let caseDisplayRepresentations: [BoardStyle: DisplayRepresentation] = [
-        .glass: "Glass",
-        .board: "Station board",
-    ]
+struct TrainEntity: AppEntity {
+    static let typeDisplayRepresentation: TypeDisplayRepresentation = "Train"
+    static let defaultQuery = TrainQuery()
+
+    let id: String  // the whole tracked train as JSON, so loading a widget needs no lookup
+
+    init(id: String) { self.id = id }
+    init(_ train: TrackedTrain) {
+        id = (try? JSONEncoder().encode(train)).map { String(decoding: $0, as: UTF8.self) } ?? ""
+    }
+
+    var train: TrackedTrain? { try? JSONDecoder().decode(TrackedTrain.self, from: Data(id.utf8)) }
+
+    var displayRepresentation: DisplayRepresentation {
+        guard let train else { return "Train" }
+        return DisplayRepresentation(title: "\(ukClock(train.departs)), arrives \(ukClock(train.arrives))")
+    }
+}
+
+/// Today's direct trains from the "Track a train from" station to this widget's station.
+struct TrainQuery: EntityQuery {
+    @IntentParameterDependency<PickStation>(\.$station, \.$trackFrom) var config
+
+    func entities(for identifiers: [String]) async throws -> [TrainEntity] {
+        identifiers.map(TrainEntity.init(id:))
+    }
+
+    func suggestedEntities() async throws -> [TrainEntity] {
+        // config is only filled in once both stations are set
+        guard let from = config?.trackFrom.station, let to = config?.station.station else { return [] }
+        return try await Trainiac.directTrains(from: from.code, to: to.code, limit: 12)
+            .map { TrainEntity(TrackedTrain($0, from: from, to: to)) }
+    }
 }
 
 struct StationEntity: AppEntity {
