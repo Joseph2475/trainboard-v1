@@ -112,3 +112,9 @@ I'd already had a departure widget on my desktop for a while. It works, but it d
 - **AI:** right-click, Edit "TrainBoard" now has "Track a train from" and "Train" under Station. Pick where the train is coming from and it lists today's direct trains to the widget's station. A train picked there beats one tracked from the app. It kept the macOS menu wording, since that comes from the system.
 
 ![Wider, system colours](docs/versions/widget-6-wider-system-colours.png)
+
+### 19. A small widget that fits
+- **Pushed back:** the small widget was "horrifically messy": long destination names cut off, and no platform or expected time. Every UK station has a three-letter code, so I asked for those in the small size.
+- **AI:** the small widget now shows time, station code, platform and expected time on every row, and the tracked train banner reads "from WAT" with its arrival time coloured by status.
+
+![Small widget with station codes](docs/versions/widget-7-small-codes.png)

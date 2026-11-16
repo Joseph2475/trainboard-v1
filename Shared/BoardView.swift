@@ -6,7 +6,7 @@ import WidgetKit
 struct BoardView: View {
     var entry: BoardEntry
     var rows: Int
-    var compact = false  // small widget: no platform or expected columns
+    var compact = false  // small widget: three-letter station codes so every column fits
 
     private let ink = Color.primary
     private let good = Color.green
@@ -68,20 +68,17 @@ struct BoardView: View {
     private func row(_ departure: Departure, striped: Bool) -> some View {
         let tracked = entry.isTracked(departure)
         let status = departure.departs.status
-        return HStack(spacing: 6) {
-            // the small widget has no Expected column, so the time carries the status colour
-            Text(ukClock(departure.departs.scheduled))
-                .foregroundStyle(compact ? color(status) : ink)
-                .frame(width: timeWidth, alignment: .leading)
+        return HStack(spacing: compact ? 5 : 6) {
+            Text(ukClock(departure.departs.scheduled)).frame(width: timeWidth, alignment: .leading)
             HStack(spacing: 3) {
                 if tracked { Image(systemName: "pin.fill").font(.system(size: 8)).widgetAccentable() }
-                Text(departure.destination.name).truncationMode(.tail)
+                Text(compact ? departure.destination.code : departure.destination.name).truncationMode(.tail)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            if !compact {
-                Text(departure.platform?.number ?? "-").opacity(0.6).frame(width: 28)
-                Text(text(status)).foregroundStyle(color(status)).frame(width: 62, alignment: .leading)
-            }
+            Text(departure.platform?.number ?? "-").opacity(0.6).frame(width: compact ? 14 : 28)
+            Text(text(status)).foregroundStyle(color(status))
+                .minimumScaleFactor(0.7)  // "Cancelled" squeezes into the small widget
+                .frame(width: compact ? 46 : 62, alignment: .leading)
         }
         .lineLimit(1)
         .padding(.vertical, 1.5)
@@ -97,10 +94,12 @@ struct BoardView: View {
         let note = arrival?.hasHappened == true ? "arrived" : arrivalNote(status)
         return HStack(spacing: 6) {
             Image(systemName: "pin.fill").font(.system(size: 8)).widgetAccentable()
-            Text(compact ? ukClock(tracked.departs) : "\(ukClock(tracked.departs)) from \(tracked.from.name)")
+            Text(compact ? "from \(tracked.from.code)" : "\(ukClock(tracked.departs)) from \(tracked.from.name)")
                 .lineLimit(1).truncationMode(.tail)
             Spacer(minLength: 8)
+            // the small widget has no room for the note, so the arrival time carries its colour
             Text(status == .cancelled ? "--:--" : ukClock(arrival?.expected ?? tracked.arrives)).bold()
+                .foregroundStyle(compact ? color(status) : ink)
             if !compact { Text(note).foregroundStyle(color(status)).padding(.leading, 4) }
         }
         .padding(.vertical, 3)

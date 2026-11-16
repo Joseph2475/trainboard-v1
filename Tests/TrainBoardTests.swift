@@ -69,7 +69,7 @@ final class TrainBoardTests: XCTestCase {
         let folder = FileManager.default.temporaryDirectory.appendingPathComponent("trainboard-renders")
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         // widget sizes measured on a MacBook desktop
-        let sizes = [("small", CGSize(width: 160, height: 160), 6, true),
+        let sizes = [("small", CGSize(width: 160, height: 160), 5, true),
                      ("medium", CGSize(width: 345, height: 160), 5, false),
                      ("large", CGSize(width: 345, height: 362), 15, false)]
         for scheme in [ColorScheme.light, .dark] {
