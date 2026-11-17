@@ -126,3 +126,9 @@ I'd already had a departure widget on my desktop for a while. It works, but it d
 - **Pushed back:** the station name and clock still sat too close to the widget's rounded top corners. They're now set further in than the rows.
 
 ![Small widget, filled](docs/versions/widget-8-small-filled.png)
+
+### 21. Anyone can download it
+- **Asked:** make the repo public, easy for anyone to download, and updating itself whenever I push out a new version.
+- **AI:** checked what going public would expose first, and cropped a personal widget out of one desktop screenshot.
+- **Pushed back:** the README still told people to build it in Xcode. That isn't good enough: it has to be a download link.
+- **AI:** the README now opens with a Download link to the latest release, a signed and notarized app that opens with no warnings. The app uses Sparkle to check for updates when it opens and daily while it's open, and installs them without asking. Publishing an update is one command, `scripts/release.sh`.
