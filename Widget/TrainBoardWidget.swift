@@ -94,15 +94,17 @@ struct TrainEntity: AppEntity {
 
 /// Today's direct trains from the "Track a train from" station to this widget's station.
 struct TrainQuery: EntityQuery {
+    // each dependency only fills in once all its parameters are set; the second covers a widget left on its default station
     @IntentParameterDependency<PickStation>(\.$station, \.$trackFrom) var config
+    @IntentParameterDependency<PickStation>(\.$trackFrom) var fromOnly
 
     func entities(for identifiers: [String]) async throws -> [TrainEntity] {
         identifiers.map(TrainEntity.init(id:))
     }
 
     func suggestedEntities() async throws -> [TrainEntity] {
-        // config is only filled in once both stations are set
-        guard let from = config?.trackFrom.station, let to = config?.station.station else { return [] }
+        guard let from = config?.trackFrom.station ?? fromOnly?.trackFrom.station else { return [] }
+        let to = config?.station.station ?? TrackedTrain.current?.to ?? .fratton  // same default as the board
         return try await Trainiac.directTrains(from: from.code, to: to.code, limit: 12)
             .map { TrainEntity(TrackedTrain($0, from: from, to: to)) }
     }

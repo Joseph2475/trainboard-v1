@@ -62,9 +62,10 @@ struct TrackTrainSections: View {
             }
             .pickerStyle(.segmented)
             Picker("Time", selection: $time) {
-                Text("Now").tag(Date?.none)
+                if when == .leave { Text("Now").tag(Date?.none) }  // "arrive by now" would only list trains already in
                 ForEach(quarterHoursLeftToday, id: \.self) { Text(ukClock($0)).tag(Date?.some($0)) }
             }
+            .onChange(of: when) { if when == .arrive && time == nil { time = quarterHoursLeftToday.first } }
             // search again whenever anything above changes (on a row that's always there)
             .task(id: "\(from?.code ?? "")\(to?.code ?? "")\(when)\(time.map(ukClock) ?? "now")") { await search() }
         }

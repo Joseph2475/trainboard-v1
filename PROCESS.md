@@ -141,3 +141,7 @@ I'd already had a departure widget on my desktop for a while. It works, but it d
 - **Decided:** A, the board, because it looks like the widget you see on the desktop.
 
 ![Icon options](docs/versions/icon-options.png)
+
+### 23. Ready for a live demo
+- **Asked:** a round of troubleshooting so nothing goes wrong when I demo it live.
+- **AI:** walked through every step of the demo and found three things that could break on camera: "Arrive by" with "Now" listed trains that had already arrived (track one and it vanished straight away), the widget's Edit panel listed no trains if its station was left on the default, and a train tracked from the widget would pick out the same service the next day. All three are fixed, with a new test for the last one, and every live API call the demo uses was checked.
