@@ -4,7 +4,7 @@ A live train departure board for the macOS desktop, built as a WidgetKit widget.
 
 Track a train (say the 12:50 from London Waterloo that a friend is on) and your home station's board pins its arrival time at the top and picks it out in the list, so you know when it gets in without opening an app.
 
-UK trains, with data from the [traini.ac API](https://traini.ac/developers).
+UK trains, with data from the [traini.ac API](https://traini.ac/developers). Built with Claude Code and other AI dev tools; see [how this was built](#how-this-was-built).
 
 ![TrainBoard widget](docs/versions/widget-6-wider-system-colours.png)
 
@@ -58,4 +58,9 @@ The tests run on saved API answers in `Tests/Fixtures`, and save a picture of ev
 
 ## How this was built
 
-Built with AI coding tools, with me making the product and design calls. [PROCESS.md](PROCESS.md) is the running log: what I asked for, what the AI did, and where I disagreed with it and changed course.
+I built TrainBoard with Claude Code and other AI dev tools. The AI wrote and tested the code; I made the product and design calls, and pushed back when it got them wrong.
+
+- **Feedback by drawing on the screen.** Instead of describing problems in text, I recorded my screen, circled what was wrong and talked through it. The AI read those recordings and made the changes.
+- **Pushback both ways.** I rejected its first app window ("horrific UI"), its "friend's train" framing, a widget style option and a cramped small widget. It pushed back on me too: it tested the train API before adding a date picker, found it only searches today's trains, and talked me out of it.
+- **Testing as it went.** It caught bugs I hadn't seen, like trains that aren't running yet having no live ID, which left the board empty. Tests run on saved train data and draw every widget size, so layout changes can be checked as pictures.
+- **Every step logged.** [PROCESS.md](PROCESS.md) records each step: what I asked for, what the AI did, and who changed course. [docs/versions](docs/versions) has a screenshot of each version along the way.
