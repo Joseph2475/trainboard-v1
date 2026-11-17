@@ -49,65 +49,20 @@ struct Provider: AppIntentTimelineProvider {
         return Timeline(entries: [entry] + later, policy: .after(nextMinute.addingTimeInterval(300)))
     }
 
-    /// A train picked in the widget beats one tracked from the app.
     /// An unset widget shows wherever the tracked train is heading, else Fratton.
     private func load(_ config: PickStation) async -> BoardEntry {
-        let tracked = config.train?.train ?? TrackedTrain.current
-        return await BoardEntry.load(config.station?.station ?? tracked?.to ?? .fratton, tracking: tracked)
+        await BoardEntry.load(config.station?.station ?? TrackedTrain.current?.to ?? .fratton)
     }
 }
 
-// MARK: - Right-click, Edit: the station, and optionally a train to track
+// MARK: - Right-click, Edit: the station. Clicking the widget opens the app, where you track a train.
 
 struct PickStation: WidgetConfigurationIntent {
     static let title: LocalizedStringResource = "Station"
-    static let description = IntentDescription("Choose the station, and a train coming to it to track.")
+    static let description = IntentDescription("Choose the station this board shows.")
 
     @Parameter(title: "Station")
     var station: StationEntity?
-
-    @Parameter(title: "Track a train from")
-    var trackFrom: StationEntity?
-
-    @Parameter(title: "Train")
-    var train: TrainEntity?
-}
-
-struct TrainEntity: AppEntity {
-    static let typeDisplayRepresentation: TypeDisplayRepresentation = "Train"
-    static let defaultQuery = TrainQuery()
-
-    let id: String  // the whole tracked train as JSON, so loading a widget needs no lookup
-
-    init(id: String) { self.id = id }
-    init(_ train: TrackedTrain) {
-        id = (try? JSONEncoder().encode(train)).map { String(decoding: $0, as: UTF8.self) } ?? ""
-    }
-
-    var train: TrackedTrain? { try? JSONDecoder().decode(TrackedTrain.self, from: Data(id.utf8)) }
-
-    var displayRepresentation: DisplayRepresentation {
-        guard let train else { return "Train" }
-        return DisplayRepresentation(title: "\(ukClock(train.departs)), arrives \(ukClock(train.arrives))")
-    }
-}
-
-/// Today's direct trains from the "Track a train from" station to this widget's station.
-struct TrainQuery: EntityQuery {
-    // each dependency only fills in once all its parameters are set; the second covers a widget left on its default station
-    @IntentParameterDependency<PickStation>(\.$station, \.$trackFrom) var config
-    @IntentParameterDependency<PickStation>(\.$trackFrom) var fromOnly
-
-    func entities(for identifiers: [String]) async throws -> [TrainEntity] {
-        identifiers.map(TrainEntity.init(id:))
-    }
-
-    func suggestedEntities() async throws -> [TrainEntity] {
-        guard let from = config?.trackFrom.station ?? fromOnly?.trackFrom.station else { return [] }
-        let to = config?.station.station ?? TrackedTrain.current?.to ?? .fratton  // same default as the board
-        return try await Trainiac.directTrains(from: from.code, to: to.code, limit: 12)
-            .map { TrainEntity(TrackedTrain($0, from: from, to: to)) }
-    }
 }
 
 struct StationEntity: AppEntity {

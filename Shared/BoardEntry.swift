@@ -25,8 +25,8 @@ struct BoardEntry: TimelineEntry {
     func isTracked(_ departure: Departure) -> Bool { trackedIsCurrent && departure.train.uid == tracked?.uid }
 
     /// The live board for a station, plus the tracked train if it's coming here.
-    static func load(_ station: Station, tracking tracked: TrackedTrain? = TrackedTrain.current) async -> BoardEntry {
-        var entry = BoardEntry(date: .now, station: station, tracked: tracked)
+    static func load(_ station: Station) async -> BoardEntry {
+        var entry = BoardEntry(date: .now, station: station, tracked: TrackedTrain.current)
         async let departures = Trainiac.departures(from: station.code)
         if entry.trackedArrivesHere { entry.trackedLive = try? await entry.tracked?.live() }
         do { entry.departures = try await departures } catch { entry.failed = true }

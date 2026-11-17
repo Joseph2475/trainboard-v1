@@ -14,7 +14,7 @@ UK trains, with data from the [traini.ac API](https://traini.ac/developers).
 
 1. Open the download and drag **TrainBoard V1** into Applications.
 2. Open it once. This is also where you track a train.
-3. Right-click the desktop, choose **Edit Widgets** and add **TrainBoard**. Right-click the widget and choose **Edit** to pick its station or track a train.
+3. Right-click the desktop, choose **Edit Widgets** and add **TrainBoard**. Right-click the widget and choose **Edit** to pick its station. Click the widget to open the app and track a train.
 
 To update, download it again and replace the app in Applications.
 
