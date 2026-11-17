@@ -1,7 +1,11 @@
 import SwiftUI
+import Sparkle
 
 @main
 struct TrainBoardApp: App {
+    // checks for updates on launch and daily while open, and installs them without asking (see Info.plist)
+    private let updater = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
+
     var body: some Scene {
         WindowGroup {
             ContentView()

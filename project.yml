@@ -1,4 +1,8 @@
 name: TrainBoardV1
+packages:
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    exactVersion: 2.9.6
 options:
   bundleIdPrefix: com.josephmoylan
   deploymentTarget:
@@ -11,6 +15,7 @@ settings:
     # macOS 15 widget gallery ignores the extension if base entitlements (get-task-allow) are injected
     CODE_SIGN_INJECT_BASE_ENTITLEMENTS: "NO"
     ENABLE_HARDENED_RUNTIME: "YES"
+    OTHER_CODE_SIGN_FLAGS: "--timestamp"  # notarization needs secure timestamps
     SWIFT_VERSION: "5.0"
     MARKETING_VERSION: "0.1"
     CURRENT_PROJECT_VERSION: "1"
@@ -25,12 +30,22 @@ targets:
         com.apple.security.app-sandbox: true
         com.apple.security.network.client: true
         com.apple.security.application-groups: [69TCYK37VK.com.josephmoylan.trainboardv1]
+        # lets the sandboxed app hand updates to Sparkle's installer
+        com.apple.security.temporary-exception.mach-lookup.global-name:
+          - $(PRODUCT_BUNDLE_IDENTIFIER)-spks
+          - $(PRODUCT_BUNDLE_IDENTIFIER)-spki
     info:
       path: App/Info.plist
       properties:
         CFBundleDisplayName: TrainBoard V1
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        # Sparkle: check the appcast daily and install updates without asking
+        SUFeedURL: https://raw.githubusercontent.com/Joseph2475/trainboard-v1/main/appcast.xml
+        SUPublicEDKey: HcbTYts2LdrZu7HlQdbWtWpHgYTomChnLnMBgHzbS0Q=
+        SUEnableInstallerLauncherService: true
+        SUEnableAutomaticChecks: true
+        SUAutomaticallyUpdate: true
     settings:
       base:
         PRODUCT_NAME: TrainBoard V1
@@ -38,6 +53,7 @@ targets:
     dependencies:
       - target: TrainBoardV1Widget
         embed: true
+      - package: Sparkle
     scheme:
       testTargets: [TrainBoardV1Tests]
   TrainBoardV1Widget:
@@ -72,3 +88,4 @@ targets:
         GENERATE_INFOPLIST_FILE: "YES"
         CODE_SIGN_IDENTITY: "-"
         ENABLE_HARDENED_RUNTIME: "NO"
+        OTHER_CODE_SIGN_FLAGS: ""

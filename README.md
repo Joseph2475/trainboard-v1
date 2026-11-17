@@ -6,17 +6,34 @@ Track a train (say the 12:50 from London Waterloo that a friend is on) and your 
 
 UK trains, with data from the [traini.ac API](https://traini.ac/developers).
 
-## Build and run
+![TrainBoard widget](docs/versions/widget-6-wider-system-colours.png)
+
+## Download
+
+**[Download TrainBoard for Mac](https://github.com/Joseph2475/trainboard-v1/releases/latest/download/TrainBoard.zip)** (macOS 15 or later)
+
+1. Open the download and drag **TrainBoard V1** into Applications.
+2. Open it once. This is also where you track a train.
+3. Right-click the desktop, choose **Edit Widgets** and add **TrainBoard**. Right-click the widget and choose **Edit** to pick its station or track a train.
+
+Updates install themselves: the app checks for a new version each time it opens, and every day while it's open.
+
+## Releasing an update
+
+```sh
+scripts/release.sh 1.1
+```
+
+Builds, signs and notarizes the app, publishes it as a GitHub release, and updates `appcast.xml`, which installed copies check for updates. Needs the Developer ID certificate, the `trainboard` notary profile and the Sparkle signing key in this Mac's keychain.
+
+## Build from source
 
 Needs Xcode and [XcodeGen](https://github.com/yonaskolb/XcodeGen).
 
 ```sh
 xcodegen generate
 xcodebuild -project TrainBoardV1.xcodeproj -scheme TrainBoardV1 -configuration Release -derivedDataPath build build
-cp -R "build/Build/Products/Release/TrainBoard V1.app" /Applications/
 ```
-
-Open the app once, then right-click the desktop, choose Edit Widgets and add a TrainBoard.
 
 ## Tests
 
@@ -36,7 +53,8 @@ The tests run on saved API answers in `Tests/Fixtures`, and save a picture of ev
 | `Shared/BoardEntry.swift` | What one board shows at one moment |
 | `Shared/BoardView.swift` | The board itself |
 | `Widget/TrainBoardWidget.swift` | The widget, its timeline and station picker |
-| `App/TrainBoardApp.swift` | The app window, where you pick a train to track |
+| `App/TrainBoardApp.swift` | The app window, where you pick a train to track, and the updater |
+| `scripts/release.sh` | Publishes a signed, notarized release that installed copies update to |
 
 ## How this was built
 
