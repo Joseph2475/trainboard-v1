@@ -149,3 +149,5 @@ I'd already had a departure widget on my desktop for a while. It works, but it d
 ### 24. One place to track a train
 - **Pushed back:** having "Track a train from" and "Train" in the widget's Edit panel as well as in the app was confusing. Tracking should happen in one place: click the widget, the app opens, track it there.
 - **AI:** removed both fields, so the Edit panel is just the station again. Clicking a widget already opens its app, so nothing new was needed for that.
+- **Asked:** make the Edit panel smaller.
+- **AI pushed back:** macOS sizes that panel itself; an app only chooses the fields, and it's down to one. It did spot the panel's icon was blank, because the widget didn't carry the app icon, and fixed that.
