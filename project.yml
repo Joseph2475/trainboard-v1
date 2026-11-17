@@ -36,6 +36,7 @@ targets:
       base:
         PRODUCT_NAME: TrainBoard V1
         PRODUCT_BUNDLE_IDENTIFIER: com.josephmoylan.trainboardv1
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     dependencies:
       - target: TrainBoardV1Widget
         embed: true

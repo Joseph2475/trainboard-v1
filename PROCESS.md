@@ -134,3 +134,10 @@ I'd already had a departure widget on my desktop for a while. It works, but it d
 - **AI:** the README now opens with a Download link to the latest release, a signed and notarized app that opens with no warnings. Publishing a new version is one command, `scripts/release.sh`.
 - **AI:** also set up automatic updates with Sparkle, but pointed out they only install when the app is open, not from the widget alone.
 - **Decided:** dropped the auto-updater. This is a project build, so a download link is enough.
+
+### 22. An app icon
+- **Asked:** an app icon would be good.
+- **AI:** drew three options to Apple's Mac icon grid: the board itself simplified, a big departure time, and split-flap digits.
+- **Decided:** A, the board, because it looks like the widget you see on the desktop.
+
+![Icon options](docs/versions/icon-options.png)
