@@ -126,3 +126,22 @@ I'd already had a departure widget on my desktop for a while. It works, but it d
 - **Pushed back:** the station name and clock still sat too close to the widget's rounded top corners. They're now set further in than the rows.
 
 ![Small widget, filled](docs/versions/widget-8-small-filled.png)
+
+### 21. Anyone can download it
+- **Asked:** make the repo public, easy for anyone to download, and updating itself whenever I push out a new version.
+- **AI:** checked what going public would expose first, and cropped a personal widget out of one desktop screenshot.
+- **Pushed back:** the README still told people to build it in Xcode. That isn't good enough: it has to be a download link.
+- **AI:** the README now opens with a Download link to the latest release, a signed and notarized app that opens with no warnings. Publishing a new version is one command, `scripts/release.sh`.
+- **AI:** also set up automatic updates with Sparkle, but pointed out they only install when the app is open, not from the widget alone.
+- **Decided:** dropped the auto-updater. This is a project build, so a download link is enough.
+
+### 22. An app icon
+- **Asked:** an app icon would be good.
+- **AI:** drew three options to Apple's Mac icon grid: the board itself simplified, a big departure time, and split-flap digits.
+- **Decided:** A, the board, because it looks like the widget you see on the desktop.
+
+![Icon options](docs/versions/icon-options.png)
+
+### 23. Ready for a live demo
+- **Asked:** a round of troubleshooting so nothing goes wrong when I demo it live.
+- **AI:** walked through every step of the demo and found three things that could break on camera: "Arrive by" with "Now" listed trains that had already arrived (track one and it vanished straight away), the widget's Edit panel listed no trains if its station was left on the default, and a train tracked from the widget would pick out the same service the next day. All three are fixed, with a new test for the last one, and every live API call the demo uses was checked.

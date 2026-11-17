@@ -48,6 +48,12 @@ final class TrainBoardTests: XCTestCase {
         XCTAssertFalse(board.at(arrival.addingTimeInterval(3 * 60)).showsTracked)
     }
 
+    func testYesterdaysTrackedTrainDoesNotPickOutTodaysRun() throws {
+        let board = try frattonBoard()
+        let tomorrow = board.at(board.date.addingTimeInterval(24 * 3600))
+        XCTAssertFalse(board.departures.contains(where: tomorrow.isTracked))
+    }
+
     func testDepartedTrainsDropOff() throws {
         let board = try frattonBoard()
         let later = board.at(board.departures[2].departs.expected.addingTimeInterval(1))

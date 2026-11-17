@@ -12,14 +12,17 @@ struct BoardEntry: TimelineEntry {
 
     var trackedArrivesHere: Bool { tracked?.to.code == station.code }
 
-    /// The tracked train stays on this board until two minutes after it gets in.
-    var showsTracked: Bool {
-        guard trackedArrivesHere, let tracked else { return false }
+    /// The tracked train counts until two minutes after it gets in.
+    private var trackedIsCurrent: Bool {
+        guard let tracked else { return false }
         let arrival = trackedLive?.arrives.expected ?? tracked.arrives
         return date < arrival.addingTimeInterval(2 * 60)
     }
 
-    func isTracked(_ departure: Departure) -> Bool { departure.train.uid == tracked?.uid }
+    var showsTracked: Bool { trackedArrivesHere && trackedIsCurrent }
+
+    // timetable ids repeat every day, so an old tracked train mustn't pick out today's run
+    func isTracked(_ departure: Departure) -> Bool { trackedIsCurrent && departure.train.uid == tracked?.uid }
 
     /// The live board for a station, plus the tracked train if it's coming here.
     static func load(_ station: Station, tracking tracked: TrackedTrain? = TrackedTrain.current) async -> BoardEntry {
