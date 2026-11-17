@@ -69,12 +69,12 @@ final class TrainBoardTests: XCTestCase {
         let folder = FileManager.default.temporaryDirectory.appendingPathComponent("trainboard-renders")
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         // widget sizes measured on a MacBook desktop
-        let sizes = [("small", CGSize(width: 160, height: 160), 5, true),
-                     ("medium", CGSize(width: 345, height: 160), 5, false),
-                     ("large", CGSize(width: 345, height: 362), 15, false)]
+        let sizes = [("small", CGSize(width: 160, height: 160), true),
+                     ("medium", CGSize(width: 345, height: 160), false),
+                     ("large", CGSize(width: 345, height: 362), false)]
         for scheme in [ColorScheme.light, .dark] {
-            for (name, size, rows, compact) in sizes {
-                let renderer = ImageRenderer(content: BoardView(entry: board, rows: rows, compact: compact)
+            for (name, size, compact) in sizes {
+                let renderer = ImageRenderer(content: BoardView(entry: board, compact: compact)
                     .padding(.horizontal, 10).padding(.vertical, 14)  // same margins as the widget
                     .frame(width: size.width, height: size.height)
                     .background(scheme == .dark ? Color(white: 0.15) : .white)

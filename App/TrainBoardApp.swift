@@ -167,7 +167,7 @@ struct TrackedTrainSection: View {
             LabeledContent("Train", value: "\(ukClock(train.departs)) from \(train.from.name)")
             LabeledContent("Due at \(train.to.name)", value: ukClock(train.arrives))
             if let board {
-                BoardView(entry: board, rows: 6)
+                BoardView(entry: board)
                     .padding(.vertical, 8)
                     .frame(height: 160)
             }

@@ -21,7 +21,7 @@ struct WidgetBoard: View {
     @Environment(\.widgetFamily) private var family
 
     var body: some View {
-        BoardView(entry: entry, rows: family == .systemLarge ? 15 : 5, compact: family == .systemSmall)
+        BoardView(entry: entry, compact: family == .systemSmall)
             .padding(.horizontal, 10)  // tighter than the system margin so rows run nearly edge to edge
             .padding(.vertical, 14)  // keeps the header clear of the rounded corners
             .containerBackground(.background, for: .widget)
