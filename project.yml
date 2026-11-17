@@ -1,8 +1,4 @@
 name: TrainBoardV1
-packages:
-  Sparkle:
-    url: https://github.com/sparkle-project/Sparkle
-    exactVersion: 2.9.6
 options:
   bundleIdPrefix: com.josephmoylan
   deploymentTarget:
@@ -30,22 +26,12 @@ targets:
         com.apple.security.app-sandbox: true
         com.apple.security.network.client: true
         com.apple.security.application-groups: [69TCYK37VK.com.josephmoylan.trainboardv1]
-        # lets the sandboxed app hand updates to Sparkle's installer
-        com.apple.security.temporary-exception.mach-lookup.global-name:
-          - $(PRODUCT_BUNDLE_IDENTIFIER)-spks
-          - $(PRODUCT_BUNDLE_IDENTIFIER)-spki
     info:
       path: App/Info.plist
       properties:
         CFBundleDisplayName: TrainBoard V1
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
-        # Sparkle: check the appcast daily and install updates without asking
-        SUFeedURL: https://raw.githubusercontent.com/Joseph2475/trainboard-v1/main/appcast.xml
-        SUPublicEDKey: HcbTYts2LdrZu7HlQdbWtWpHgYTomChnLnMBgHzbS0Q=
-        SUEnableInstallerLauncherService: true
-        SUEnableAutomaticChecks: true
-        SUAutomaticallyUpdate: true
     settings:
       base:
         PRODUCT_NAME: TrainBoard V1
@@ -53,7 +39,6 @@ targets:
     dependencies:
       - target: TrainBoardV1Widget
         embed: true
-      - package: Sparkle
     scheme:
       testTargets: [TrainBoardV1Tests]
   TrainBoardV1Widget:

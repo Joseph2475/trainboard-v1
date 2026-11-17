@@ -131,4 +131,6 @@ I'd already had a departure widget on my desktop for a while. It works, but it d
 - **Asked:** make the repo public, easy for anyone to download, and updating itself whenever I push out a new version.
 - **AI:** checked what going public would expose first, and cropped a personal widget out of one desktop screenshot.
 - **Pushed back:** the README still told people to build it in Xcode. That isn't good enough: it has to be a download link.
-- **AI:** the README now opens with a Download link to the latest release, a signed and notarized app that opens with no warnings. The app uses Sparkle to check for updates when it opens and daily while it's open, and installs them without asking. Publishing an update is one command, `scripts/release.sh`.
+- **AI:** the README now opens with a Download link to the latest release, a signed and notarized app that opens with no warnings. Publishing a new version is one command, `scripts/release.sh`.
+- **AI:** also set up automatic updates with Sparkle, but pointed out they only install when the app is open, not from the widget alone.
+- **Decided:** dropped the auto-updater. This is a project build, so a download link is enough.

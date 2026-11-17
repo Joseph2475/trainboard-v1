@@ -16,7 +16,7 @@ UK trains, with data from the [traini.ac API](https://traini.ac/developers).
 2. Open it once. This is also where you track a train.
 3. Right-click the desktop, choose **Edit Widgets** and add **TrainBoard**. Right-click the widget and choose **Edit** to pick its station or track a train.
 
-Updates install themselves: the app checks for a new version each time it opens, and every day while it's open.
+To update, download it again and replace the app in Applications.
 
 ## Releasing an update
 
@@ -24,7 +24,7 @@ Updates install themselves: the app checks for a new version each time it opens,
 scripts/release.sh 1.1
 ```
 
-Builds, signs and notarizes the app, publishes it as a GitHub release, and updates `appcast.xml`, which installed copies check for updates. Needs the Developer ID certificate, the `trainboard` notary profile and the Sparkle signing key in this Mac's keychain.
+Builds, signs and notarizes the app and publishes it as a GitHub release, which the Download link above always points to. Needs the Developer ID certificate and the `trainboard` notary profile in this Mac's keychain.
 
 ## Build from source
 
@@ -53,8 +53,8 @@ The tests run on saved API answers in `Tests/Fixtures`, and save a picture of ev
 | `Shared/BoardEntry.swift` | What one board shows at one moment |
 | `Shared/BoardView.swift` | The board itself |
 | `Widget/TrainBoardWidget.swift` | The widget, its timeline and station picker |
-| `App/TrainBoardApp.swift` | The app window, where you pick a train to track, and the updater |
-| `scripts/release.sh` | Publishes a signed, notarized release that installed copies update to |
+| `App/TrainBoardApp.swift` | The app window, where you pick a train to track |
+| `scripts/release.sh` | Publishes a signed, notarized release for the Download link |
 
 ## How this was built
 

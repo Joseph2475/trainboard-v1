@@ -20,15 +20,5 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
-	<key>SUAutomaticallyUpdate</key>
-	<true/>
-	<key>SUEnableAutomaticChecks</key>
-	<true/>
-	<key>SUEnableInstallerLauncherService</key>
-	<true/>
-	<key>SUFeedURL</key>
-	<string>https://raw.githubusercontent.com/Joseph2475/trainboard-v1/main/appcast.xml</string>
-	<key>SUPublicEDKey</key>
-	<string>HcbTYts2LdrZu7HlQdbWtWpHgYTomChnLnMBgHzbS0Q=</string>
 </dict>
 </plist>
